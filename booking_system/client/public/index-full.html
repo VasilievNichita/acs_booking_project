@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TravelNv - Бронирование жилья</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #fff;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            border-bottom: 1px solid #ddd;
+            padding: 15px 20px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #FF385C;
+            cursor: pointer;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            background: #FF385C;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: #E31C5F;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #222;
+            border: 1px solid #ddd;
+        }
+
+        .btn-secondary:hover {
+            background: #f7f7f7;
+        }
+
+        /* Categories */
+        .categories {
+            border-bottom: 1px solid #ddd;
+            padding: 15px 0;
+            background: white;
+        }
+
+        .categories-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            gap: 30px;
+        }
+
+        .category {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .category:hover, .category.active {
+            border-bottom-color: #222;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        h1 {
+            font-size: 32px;
+            margin-bottom: 30px;
+        }
+
+        /* Apartments Grid */
+        .apartments-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .apartment-card {
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .apartment-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .apartment-image {
+            width: 100%;
+            height: 280px;
+            border-radius: 12px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin-bottom: 12px;
+            position: relative;
+        }
+
+        .favorite-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255,255,255,0.9);
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .favorite-btn:hover {
+            background: white;
+            transform: scale(1.1);
+        }
+
+        .apartment-content {
+            padding: 0 5px;
+        }
+
+        .apartment-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .apartment-details {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .apartment-price {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .apartment-price span {
+            font-weight: normal;
+            font-size: 14px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .modal-close:hover {
+            color: #000;
+        }
+
+        .modal h2 {
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #FF385C;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 18px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <div class="logo" onclick="loadApartments()">🏠 TravelNv</div>
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" onclick="openModal('login')">Вход</button>
+                <button class="btn" onclick="openModal('register')">Регистрация</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Categories -->
+    <div class="categories">
+        <div class="categories-content">
+            <div class="category active">🏠 Жилье</div>
+            <div class="category">🎭 Впечатления</div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <h1>Популярное жилье</h1>
+        <div id="apartments" class="apartments-grid">
+            <div class="loading">Загрузка квартир...</div>
+        </div>
+    </div>
+
+    <!-- Modal Registration -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('register')">&times;</button>
+            <h2>Регистрация</h2>
+            <div id="registerAlert"></div>
+            <form onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label>Роль</label>
+                    <select id="regRole" required>
+                        <option value="CLIENT">Клиент</option>
+                        <option value="OWNER">Владелец</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="regEmail" placeholder="email@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" id="regPassword" placeholder="Минимум 6 символов" required>
+                </div>
+                <div class="form-group">
+                    <label>Имя</label>
+                    <input type="text" id="regFirstName" placeholder="Иван" required>
+                </div>
+                <div class="form-group">
+                    <label>Фамилия</label>
+                    <input type="text" id="regLastName" placeholder="Иванов" required>
+                </div>
+                <div class="form-group">
+                    <label>Телефон</label>
+                    <input type="tel" id="regPhone" placeholder="+373-123-45-67" required>
+                </div>
+                <button type="submit" class="btn" style="width: 100%;">Зарегистрироваться</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Login -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('login')">&times;</button>
+            <h2>Вход</h2>
+            <div id="loginAlert"></div>
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" placeholder="email@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" id="loginPassword" placeholder="Ваш пароль" required>
+                </div>
+                <button type="submit" class="btn" style="width: 100%;">Войти</button>
+            </form>
+            <p style="text-align: center; margin-top: 20px; color: #666;">
+                Нет аккаунта? <a href="#" onclick="closeModal('login'); openModal('register'); return false;" style="color: #FF385C;">Зарегистрируйтесь</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Modal Apartment Details -->
+    <div id="apartmentModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('apartment')">&times;</button>
+            <div id="apartmentDetails"></div>
+        </div>
+    </div>
+
+    <script>
+        console.log('✅ TravelNv загружен!');
+
+        // Модальные окна
+        function openModal(type) {
+            console.log('Открываю модальное окно:', type);
+            const modal = document.getElementById(type + 'Modal');
+            if (modal) {
+                modal.classList.add('active');
+            }
+        }
+
+        function closeModal(type) {
+            console.log('Закрываю модальное окно:', type);
+            const modal = document.getElementById(type + 'Modal');
+            if (modal) {
+                modal.classList.remove('active');
+            }
+        }
+
+        // Закрытие по клику вне модального окна
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+
+        // Регистрация
+        async function handleRegister(event) {
+            event.preventDefault();
+            console.log('Отправка формы регистрации...');
+            
+            const alertDiv = document.getElementById('registerAlert');
+            const data = {
+                email: document.getElementById('regEmail').value,
+                password: document.getElementById('regPassword').value,
+                firstName: document.getElementById('regFirstName').value,
+                lastName: document.getElementById('regLastName').value,
+                phone: document.getElementById('regPhone').value,
+                role: document.getElementById('regRole').value
+            };
+
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    alertDiv.innerHTML = `<div class="alert alert-success">✅ Регистрация успешна! ID: ${result.id}</div>`;
+                    console.log('✅ Пользователь зарегистрирован:', result);
+                    setTimeout(() => {
+                        closeModal('register');
+                        alertDiv.innerHTML = '';
+                    }, 2000);
+                } else {
+                    throw new Error(result.message || 'Ошибка регистрации');
+                }
+            } catch (error) {
+                console.error('❌ Ошибка регистрации:', error);
+                alertDiv.innerHTML = `<div class="alert alert-error">❌ ${error.message}</div>`;
+            }
+        }
+
+        // Вход
+        async function handleLogin(event) {
+            event.preventDefault();
+            console.log('Отправка формы входа...');
+            
+            const alertDiv = document.getElementById('loginAlert');
+            alertDiv.innerHTML = `<div class="alert alert-success">✅ Функция входа будет реализована позже</div>`;
+        }
+
+        // Загрузка квартир
+        async function loadApartments() {
+            const container = document.getElementById('apartments');
+            container.innerHTML = '<div class="loading">Загружаю квартиры...</div>';
+            
+            console.log('🔄 Загружаю квартиры...');
+            
+            try {
+                const response = await fetch('/api/apartments/available');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const apartments = await response.json();
+                console.log('✅ Получено квартир:', apartments.length);
+                
+                if (apartments.length === 0) {
+                    container.innerHTML = '<div class="loading">Нет доступных квартир</div>';
+                    return;
+                }
+                
+                container.innerHTML = '';
+                
+                apartments.forEach(apt => {
+                    const card = document.createElement('div');
+                    card.className = 'apartment-card';
+                    card.onclick = () => showApartmentDetails(apt);
+                    
+                    card.innerHTML = `
+                        <div class="apartment-image">
+                            <button class="favorite-btn" onclick="event.stopPropagation(); toggleFavorite(${apt.id})">♡</button>
+                        </div>
+                        <div class="apartment-content">
+                            <div class="apartment-title">${apt.city}</div>
+                            <div class="apartment-details">
+                                ${apt.address}<br>
+                                ${apt.rooms} комнат · до ${apt.maxGuests} гостей
+                            </div>
+                            <div class="apartment-price">
+                                ${apt.pricePerNight} ₽ <span>/ ночь</span>
+                            </div>
+                        </div>
+                    `;
+                    
+                    container.appendChild(card);
+                });
+                
+                console.log('✅ Все карточки созданы!');
+                
+            } catch (error) {
+                console.error('❌ Ошибка:', error);
+                container.innerHTML = `<div class="loading" style="color: red;">Ошибка загрузки: ${error.message}</div>`;
+            }
+        }
+
+        // Показать детали квартиры
+        function showApartmentDetails(apt) {
+            console.log('Показываю детали квартиры:', apt.id);
+            const detailsDiv = document.getElementById('apartmentDetails');
+            detailsDiv.innerHTML = `
+                <h2>${apt.title || apt.city}</h2>
+                <p><strong>Адрес:</strong> ${apt.address}, ${apt.city}</p>
+                <p><strong>Комнат:</strong> ${apt.rooms}</p>
+                <p><strong>Гостей:</strong> до ${apt.maxGuests}</p>
+                <p><strong>Рейтинг:</strong> ⭐ ${apt.averageRating?.toFixed(1) || '5.0'} (${apt.totalReviews || 0} отзывов)</p>
+                <p style="font-size: 24px; font-weight: bold; color: #FF385C; margin-top: 20px;">
+                    ${apt.pricePerNight} ₽ / ночь
+                </p>
+                <button class="btn" style="width: 100%; margin-top: 20px;" onclick="alert('Функция бронирования будет добавлена!')">
+                    Забронировать
+                </button>
+            `;
+            openModal('apartment');
+        }
+
+        // Избранное
+        function toggleFavorite(id) {
+            console.log('Переключаю избранное для квартиры:', id);
+            alert('Квартира добавлена в избранное!');
+        }
+
+        // Загрузить при открытии
+        window.onload = () => {
+            console.log('🚀 Страница загружена');
+            loadApartments();
+        };
+    </script>
+</body>
+</html>

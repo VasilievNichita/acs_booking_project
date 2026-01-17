@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TravelNv - Простая версия</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #fff;
+        }
+        .header {
+            background: white;
+            border-bottom: 1px solid #ddd;
+            padding: 20px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #FF385C;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        h1 {
+            font-size: 32px;
+            margin-bottom: 30px;
+        }
+        .apartments-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        .apartment-card {
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .apartment-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+        .apartment-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .apartment-content {
+            padding: 15px;
+        }
+        .apartment-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .apartment-details {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .apartment-price {
+            font-size: 20px;
+            font-weight: bold;
+            color: #FF385C;
+        }
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 18px;
+            color: #666;
+        }
+        .error {
+            background: #fee;
+            border: 1px solid #fcc;
+            padding: 20px;
+            border-radius: 8px;
+            color: #c00;
+        }
+        button {
+            background: #FF385C;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        button:hover {
+            background: #E31C5F;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">🏠 TravelNv</div>
+    </div>
+
+    <div class="container">
+        <h1>Популярное жилье</h1>
+        <button onclick="loadApartments()">🔄 Обновить список</button>
+        <div id="apartments" class="apartments-grid">
+            <div class="loading">Загрузка квартир...</div>
+        </div>
+    </div>
+
+    <script>
+        console.log('✅ JavaScript загружен!');
+
+        async function loadApartments() {
+            const container = document.getElementById('apartments');
+            container.innerHTML = '<div class="loading">Загружаю квартиры...</div>';
+            
+            console.log('🔄 Загружаю квартиры...');
+            
+            try {
+                const response = await fetch('/api/apartments/available');
+                console.log('📡 Ответ получен:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const apartments = await response.json();
+                console.log('✅ Получено квартир:', apartments.length);
+                console.log('Данные:', apartments);
+                
+                if (apartments.length === 0) {
+                    container.innerHTML = '<div class="loading">Нет доступных квартир</div>';
+                    return;
+                }
+                
+                container.innerHTML = '';
+                
+                apartments.forEach((apt, index) => {
+                    console.log(`Создаю карточку ${index + 1}:`, apt.title);
+                    
+                    const card = document.createElement('div');
+                    card.className = 'apartment-card';
+                    card.onclick = () => {
+                        console.log('🏠 Клик по квартире:', apt.id, apt.title);
+                        alert(`Вы выбрали: ${apt.title}\nЦена: ${apt.pricePerNight}₽/ночь`);
+                    };
+                    
+                    card.innerHTML = `
+                        <div class="apartment-image"></div>
+                        <div class="apartment-content">
+                            <div class="apartment-title">${apt.title || apt.city}</div>
+                            <div class="apartment-details">
+                                📍 ${apt.address}, ${apt.city}<br>
+                                🛏️ ${apt.rooms} комнат · до ${apt.maxGuests} гостей<br>
+                                ⭐ ${apt.averageRating?.toFixed(1) || '5.0'} (${apt.totalReviews || 0} отзывов)
+                            </div>
+                            <div class="apartment-price">${apt.pricePerNight} ₽ / ночь</div>
+                        </div>
+                    `;
+                    
+                    container.appendChild(card);
+                });
+                
+                console.log('✅ Все карточки созданы!');
+                
+            } catch (error) {
+                console.error('❌ Ошибка:', error);
+                container.innerHTML = `
+                    <div class="error">
+                        <h3>Ошибка загрузки</h3>
+                        <p>${error.message}</p>
+                        <button onclick="loadApartments()">Попробовать снова</button>
+                    </div>
+                `;
+            }
+        }
+
+        // Загрузить при открытии страницы
+        window.onload = () => {
+            console.log('🚀 Страница загружена');
+            loadApartments();
+        };
+    </script>
+</body>
+</html>
